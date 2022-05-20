@@ -136,16 +136,14 @@ module Account::Faucet {
     use AptosFramework::Genesis;
     #[test_only]
     use Std::ASCII::string;
-    #[test_ony]
-    use AptosFramework::Coin::{MintCapability, BurnCapability};
 
     #[test_only]
     struct FakeMoney has store {}
 
     #[test_only]
     struct FakeMoneyCaps has key {
-        mint_cap: MintCapability<FakeMoney>,
-        burn_cap: BurnCapability<FakeMoney>,
+        mint_cap: Coin::MintCapability<FakeMoney>,
+        burn_cap: Coin::BurnCapability<FakeMoney>,
     }
 
     #[test(core = @CoreResources, faucet_creator = @Account, someone_else = @0x11)]
