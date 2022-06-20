@@ -3,8 +3,7 @@ name = "faucet"
 version = "0.1.0"
 
 [dependencies]
-AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "367608ab5cf726039ff44bfdac1f2177210b1440" }
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "39bdd6acf1bcf523970b6be057f884a848712c7c" }
 
 [addresses]
 Account = "0x43417434fd869edee76cca2a4d2301e528a1551b1d719b75c350c3c97d15b8b9"
-
