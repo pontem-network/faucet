@@ -3,6 +3,7 @@ module account::faucet {
     use std::signer;
     use aptos_framework::timestamp;
     use aptos_framework::coin::{Self, Coin};
+    use aptos_framework::coins;
 
     // Errors.
 
@@ -123,7 +124,7 @@ module account::faucet {
         let account_addr = signer::address_of(account);
 
         if (!coin::is_account_registered<CoinType>(account_addr)) {
-            coin::register<CoinType>(account);
+            coins::register<CoinType>(account);
         };
 
         let coins = request_internal<CoinType>(account, faucet_addr);
@@ -135,6 +136,8 @@ module account::faucet {
     use aptos_framework::genesis;
     #[test_only]
     use std::string::utf8;
+    #[test_only]
+    use aptos_framework::account::create_account;
 
     #[test_only]
     struct FakeMoney has store {}
@@ -148,6 +151,9 @@ module account::faucet {
     #[test(core = @core_resources, faucet_creator = @account, someone_else = @0x11)]
     public entry fun test_faucet_end_to_end(core: &signer, faucet_creator: &signer, someone_else: &signer) acquires Faucet, Restricted {
         genesis::setup(core);
+
+        create_account(signer::address_of(faucet_creator));
+        create_account(signer::address_of(someone_else));
 
         let (m, b) = coin::initialize<FakeMoney>(
             faucet_creator,
@@ -164,7 +170,7 @@ module account::faucet {
         let faucet_addr = signer::address_of(faucet_creator);
 
         let coins_minted = coin::mint(amount, &m);
-        coin::register<FakeMoney>(faucet_creator);
+        coins::register<FakeMoney>(faucet_creator);
         coin::deposit(faucet_addr, coins_minted);
 
         create_faucet<FakeMoney>(faucet_creator, amount / 2, per_request, period);
@@ -203,6 +209,9 @@ module account::faucet {
     public entry fun test_faucet_fail_request(core: &signer, faucet_creator: &signer) acquires Faucet, Restricted {
         genesis::setup(core);
 
+        create_account(signer::address_of(faucet_creator));
+        create_account(signer::address_of(someone_else));
+
         let (m, b) = coin::initialize<FakeMoney>(
             faucet_creator,
             utf8(b"FakeMoney"),
@@ -218,7 +227,7 @@ module account::faucet {
         let faucet_addr = signer::address_of(faucet_creator);
 
         let coins_minted = coin::mint(amount, &m);
-        coin::register<FakeMoney>(faucet_creator);
+        coins::register<FakeMoney>(faucet_creator);
         coin::deposit(faucet_addr, coins_minted);
 
         create_faucet<FakeMoney>(faucet_creator, amount / 2, per_request, period);
@@ -238,6 +247,9 @@ module account::faucet {
     public entry fun test_faucet_fail_settings(core: &signer, faucet_creator: &signer, someone_else: &signer) acquires Faucet {
         genesis::setup(core);
 
+        create_account(signer::address_of(faucet_creator));
+        create_account(signer::address_of(someone_else));
+
         let (m, b) = coin::initialize<FakeMoney>(
             faucet_creator,
             utf8(b"FakeMoney"),
@@ -253,7 +265,7 @@ module account::faucet {
         let faucet_addr = signer::address_of(faucet_creator);
 
         let coins_minted = coin::mint(amount, &m);
-        coin::register<FakeMoney>(faucet_creator);
+        coins::register<FakeMoney>(faucet_creator);
         coin::deposit(faucet_addr, coins_minted);
 
         create_faucet<FakeMoney>(faucet_creator, amount / 2, per_request, period);
@@ -270,6 +282,9 @@ module account::faucet {
     public entry fun test_already_exists(core: &signer, faucet_creator: &signer) {
         genesis::setup(core);
 
+        create_account(signer::address_of(faucet_creator));
+        create_account(signer::address_of(someone_else));
+
         let (m, b) = coin::initialize<FakeMoney>(
             faucet_creator,
             utf8(b"FakeMoney"),
@@ -285,7 +300,7 @@ module account::faucet {
         let faucet_addr = signer::address_of(faucet_creator);
 
         let coins_minted = coin::mint(amount, &m);
-        coin::register<FakeMoney>(faucet_creator);
+        coins::register<FakeMoney>(faucet_creator);
         coin::deposit(faucet_addr, coins_minted);
 
         create_faucet<FakeMoney>(faucet_creator, amount / 2, per_request, period);
