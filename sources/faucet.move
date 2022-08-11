@@ -210,7 +210,6 @@ module account::faucet {
         genesis::setup(core);
 
         create_account(signer::address_of(faucet_creator));
-        create_account(signer::address_of(someone_else));
 
         let (m, b) = coin::initialize<FakeMoney>(
             faucet_creator,
@@ -277,9 +276,9 @@ module account::faucet {
         });
     }
 
-    #[test(core = @core_resources, faucet_creator = @account)]
+    #[test(core = @core_resources, faucet_creator = @account, someone_else = @0x11)]
     #[expected_failure(abort_code = 100)]
-    public entry fun test_already_exists(core: &signer, faucet_creator: &signer) {
+    public entry fun test_already_exists(core: &signer, faucet_creator: &signer, someone_else: &signer) {
         genesis::setup(core);
 
         create_account(signer::address_of(faucet_creator));
