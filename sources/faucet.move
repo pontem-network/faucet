@@ -148,20 +148,21 @@ module account::faucet {
         burn_cap: coin::BurnCapability<FakeMoney>,
     }
 
-    #[test(core = @core_resources, faucet_creator = @account, someone_else = @0x11)]
-    public entry fun test_faucet_end_to_end(core: &signer, faucet_creator: &signer, someone_else: &signer) acquires Faucet, Restricted {
-        genesis::setup(core);
+    #[test(faucet_creator = @account, someone_else = @0x11)]
+    public entry fun test_faucet_end_to_end(faucet_creator: &signer, someone_else: &signer) acquires Faucet, Restricted {
+        genesis::setup();
 
         create_account(signer::address_of(faucet_creator));
         create_account(signer::address_of(someone_else));
 
-        let (m, b) = coin::initialize<FakeMoney>(
+        let (b, f, m) = coin::initialize<FakeMoney>(
             faucet_creator,
             utf8(b"FakeMoney"),
             utf8(b"FM"),
             8,
             true
         );
+        coin::destroy_freeze_cap(f);
 
         let amount = 100000000000000u64;
         let per_request = 1000000000u64;
@@ -204,20 +205,21 @@ module account::faucet {
         });
     }
 
-    #[test(core = @core_resources, faucet_creator = @account)]
+    #[test(faucet_creator = @account)]
     #[expected_failure(abort_code = 102)]
-    public entry fun test_faucet_fail_request(core: &signer, faucet_creator: &signer) acquires Faucet, Restricted {
-        genesis::setup(core);
+    public entry fun test_faucet_fail_request(faucet_creator: &signer) acquires Faucet, Restricted {
+        genesis::setup();
 
         create_account(signer::address_of(faucet_creator));
 
-        let (m, b) = coin::initialize<FakeMoney>(
+        let (b, f, m) = coin::initialize<FakeMoney>(
             faucet_creator,
             utf8(b"FakeMoney"),
             utf8(b"FM"),
             8,
             true
         );
+        coin::destroy_freeze_cap(f);
 
         let amount = 100000000000000u64;
         let per_request = 1000000000u64;
@@ -241,21 +243,22 @@ module account::faucet {
         });
     }
 
-    #[test(core = @core_resources, faucet_creator = @account, someone_else = @0x11)]
+    #[test(faucet_creator = @account, someone_else = @0x11)]
     #[expected_failure(abort_code = 101)]
-    public entry fun test_faucet_fail_settings(core: &signer, faucet_creator: &signer, someone_else: &signer) acquires Faucet {
-        genesis::setup(core);
+    public entry fun test_faucet_fail_settings(faucet_creator: &signer, someone_else: &signer) acquires Faucet {
+        genesis::setup();
 
         create_account(signer::address_of(faucet_creator));
         create_account(signer::address_of(someone_else));
 
-        let (m, b) = coin::initialize<FakeMoney>(
+        let (b, f, m) = coin::initialize<FakeMoney>(
             faucet_creator,
             utf8(b"FakeMoney"),
             utf8(b"FM"),
             8,
             true
         );
+        coin::destroy_freeze_cap(f);
 
         let amount = 100000000000000u64;
         let per_request = 1000000000u64;
@@ -276,21 +279,22 @@ module account::faucet {
         });
     }
 
-    #[test(core = @core_resources, faucet_creator = @account, someone_else = @0x11)]
+    #[test(faucet_creator = @account, someone_else = @0x11)]
     #[expected_failure(abort_code = 100)]
-    public entry fun test_already_exists(core: &signer, faucet_creator: &signer, someone_else: &signer) {
-        genesis::setup(core);
+    public entry fun test_already_exists(faucet_creator: &signer, someone_else: &signer) {
+        genesis::setup();
 
         create_account(signer::address_of(faucet_creator));
         create_account(signer::address_of(someone_else));
 
-        let (m, b) = coin::initialize<FakeMoney>(
+        let (b, f, m) = coin::initialize<FakeMoney>(
             faucet_creator,
             utf8(b"FakeMoney"),
             utf8(b"FM"),
             8,
             true
         );
+        coin::destroy_freeze_cap(f);
 
         let amount = 100000000000000u64;
         let per_request = 1000000000u64;
@@ -298,7 +302,7 @@ module account::faucet {
 
         let faucet_addr = signer::address_of(faucet_creator);
 
-        let coins_minted = coin::mint(amount, &m);
+        let coins_minted = coin::mint<FakeMoney>(amount, &m);
         coins::register<FakeMoney>(faucet_creator);
         coin::deposit(faucet_addr, coins_minted);
 
