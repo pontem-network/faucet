@@ -1,10 +1,10 @@
 [package]
 name = "faucet"
-version = "0.2.6"
+version = "0.2.7"
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "8f634bcd2e48c4972868d0053d3532f4f760ae19"
+rev = "devnet"
 subdir = "aptos-move/framework/aptos-framework/"
 
 [addresses]
