@@ -1,6 +1,7 @@
 /// Basic faucet, allows to request coins between intervals.
 module account::faucet {
     use std::signer;
+    use std::string::utf8;
     use aptos_framework::timestamp;
     use aptos_framework::coin::{Self, Coin};
 
@@ -155,8 +156,6 @@ module account::faucet {
 
     #[test_only]
     use aptos_framework::genesis;
-    #[test_only]
-    use std::string::utf8;
     #[test_only]
     use aptos_framework::account::create_account_for_test;
 
