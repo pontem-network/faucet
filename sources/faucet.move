@@ -105,6 +105,28 @@ module account::faucet {
         create_faucet_internal(account, coins, per_request, period);
     }
 
+    /// Creates new coin `CoinType` and new faucet on `account` address for the new coin.
+    /// * `account` - account which creates
+    /// * `per_request` - how much funds should be distributed per user request.
+    /// * `period` - interval allowed between requests for specific user.
+    public entry fun create_coin_and_faucet<CoinType>(account: &signer, per_request: u64, period: u64) {
+        let (b, f, m) = coin::initialize<CoinType>(
+            account,  
+            utf8(b"FaucetCoin"),
+            utf8(b"FC"),
+            8,
+            true);
+        
+        coin::register<CoinType>(account);
+        let coins = coin::mint<CoinType>(18446744073709551614u64, &m);
+    
+        coin::destroy_mint_cap(m);
+        coin::destroy_freeze_cap(f);
+        coin::destroy_burn_cap(b);
+
+        create_faucet_internal(account, coins, per_request, period);
+    }
+
     /// Changes faucet settings on `account`.
     public entry fun change_settings<CoinType>(account: &signer, per_request: u64, period: u64) acquires Faucet {
         change_settings_internal<CoinType>(account, per_request, period);
@@ -202,6 +224,25 @@ module account::faucet {
             mint_cap: m,
             burn_cap: b,
         });
+    }
+
+    #[test(faucet_creator = @account, someone_else = @0x11)]
+    public entry fun test_create_coin_and_faucet(faucet_creator: &signer, someone_else: &signer) acquires Faucet, Restricted {
+        genesis::setup();
+
+        create_account_for_test(signer::address_of(faucet_creator));
+        create_account_for_test(signer::address_of(someone_else));
+
+        let per_request = 1000000000u64;
+        let period = 3000u64;
+        create_coin_and_faucet<FakeMoney>(faucet_creator, per_request, period);
+
+        let faucet_addr = signer::address_of(faucet_creator);
+        let someone_else_addr = signer::address_of(someone_else);
+        request<FakeMoney>(someone_else, faucet_addr);
+        assert!(coin::balance<FakeMoney>(someone_else_addr) == per_request, 1);
+
+        timestamp::update_global_time_for_test(3000000000);
     }
 
     #[test(faucet_creator = @account)]
