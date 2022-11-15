@@ -4,6 +4,7 @@ module account::faucet {
     use std::string::utf8;
     use aptos_framework::timestamp;
     use aptos_framework::coin::{Self, Coin};
+    use test_coins::coins::{register_coins, mint_coin};
 
     // Errors.
 
@@ -126,6 +127,13 @@ module account::faucet {
         coin::destroy_burn_cap(b);
 
         create_faucet_internal(account, coins, per_request, period);
+    }
+
+    public entry fun init_demo_faucet<CoinType>(account: &signer, amount_to_deposit: u64, per_request: u64, period: u64){
+        register_coins(account);
+        coin::register<CoinType>(account);
+        mint_coin<CoinType>(account, signer::address_of(account), amount_to_deposit);
+        create_faucet<CoinType>(account, amount_to_deposit, per_request, period)
     }
 
     /// Changes faucet settings on `account`.
